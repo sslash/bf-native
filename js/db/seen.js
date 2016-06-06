@@ -20,8 +20,11 @@ function getUser(userId) {
 function getOrCreateUser() {
     return new Promise((resolve, reject) => {
 
-        // only one user-instance in the DB
-        DB.user.find()
+        clean()
+        .then(() => {
+            // only one user-instance in the DB
+            return DB.user.find();
+        })
         .then((user) => {
             if (user && user.length) {
                 return user;
@@ -35,7 +38,8 @@ function getOrCreateUser() {
                 return resolve(res[0]);
             } else {
                 // shouldnt happen
-                return resolve(null);
+                console.log('Something went wrong when creating user. Empty result');
+                return resolve({});
             }
         })
         .catch((err) => {
@@ -45,17 +49,34 @@ function getOrCreateUser() {
     });
 }
 
-function updateUser(id, data) {
-    return DB.user.updateById(id, data);
+function clean () {
+    if (__DEV__) {
+        console.log('CLEANING');
+        return DB.user.destroy();
+    } else {
+        return Promise.resolve();
+    }
+}
+
+function updateUser(userId, data) {
+
+    // just always overwrite this one. simple solution.
+    data.seenIntro = true;
+    console.log('Updating user, ', userId, data);
+    return DB.user.update(data, {userId: userId});
 }
 
 // returns array (user.find result)
 function _createUser() {
     const userId = DeviceInfo.getUniqueID() || Date.now();
+    console.log('Creating user: ', userId);
+
     return DB.user.add({
-        userId: userId
+        userId: userId,
+        lastSeenId: 0
     })
-    .then(() => {
+    // res = Object {userId: "67FBF794-FC50-4527-80C0-DD88D024C2D6", lastSeenId: 0, _id: 1}
+    .then((res) => {
         return DB.user.find();
     });
 }

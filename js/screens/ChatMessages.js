@@ -23,11 +23,11 @@ const UserInput = ({onSubmit}) => (
         />
 );
 
-const Button = ({onPress, text}) => (
+const Button = ({onPress, text, style, textStyle}) => (
     <TouchableOpacity
-        style={[Stl.botMessage, Stl.buttonStyle]}
+        style={[Stl.botMessage, Stl.buttonStyle, style]}
         onPress={onPress}>
-        <Text style={{color: '#fff'}}>{text}</Text>
+        <Text style={[{color: '#fff'}, textStyle]}>{text}</Text>
     </TouchableOpacity>
 );
 
@@ -83,10 +83,13 @@ class ChatMessages extends Component {
     }
 
     waitForAnswer(message) {
-        if (message.user_input_answer) {
+        if (message.user_input_answer ) {
             this.setState({renderUserInput: true});
         } else if (message.answer_text) {
-            this.setState({renderAnswerText: message.answer_text});
+            this.setState({
+                renderAnswerText: message.answer_text,
+                renderAnswerText2: message.answer_text_2 // currently only for custom messages
+            });
         }
     }
 
@@ -123,8 +126,24 @@ class ChatMessages extends Component {
         }
 
         // setTimeout(() => {
-            this.iterateNextMessage(this.convIterator.prev());
+        this.iterateNextMessage(this.convIterator.prev());
         // });
+    }
+
+    onSubmitCustomAnswer = (answer) => {
+        // will trigger a noticiation popup
+        // then when user has clicked, it will go back here.
+        this.props.onCustomAnswerSubmit(
+            answer,
+            this.convIterator.prev(),
+            () => {
+                this.setState({
+                    renderAnswerText: null,
+                    renderAnswerText2: null
+                });
+                this.iterateNextMessage(this.convIterator.prev());
+            }
+        );
     }
 
     //
@@ -143,6 +162,24 @@ class ChatMessages extends Component {
 
     renderAnswerText () {
         if (this.state.renderAnswerText) {
+
+            if (this.state.renderAnswerText2) {
+                return (
+                    <View style={{flexDirection: 'row'}}>
+                        <Button
+                            onPress={() => this.onSubmitCustomAnswer(this.state.renderAnswerText)}
+                            text={this.state.renderAnswerText}
+                        />
+                        <Button
+                            onPress={() => this.onSubmitCustomAnswer(this.state.renderAnswerText2)}
+                            text={this.state.renderAnswerText2}
+                            style={Stl.defaultBtn}
+                            textStyle={{color: '#222'}}
+                        />
+                    </View>
+                );
+            }
+
             return (
                 <Button
                     onPress={() => this.onSubmitAnswer()}

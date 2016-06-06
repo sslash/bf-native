@@ -18,8 +18,30 @@ class ChatScreen extends Component {
     }
 
     hasNextConversation () {
-        return this.state.currentConversationIndex <
-            this.props.conversations.conversations - 1;
+        return (this.state.currentConversationIndex <
+            this.props.conversations.conversations - 1) &&
+
+            // dont show more then 2 messages
+            this.state.currentConversationIndex < 1;
+    }
+
+    componentWillReceiveProps(newProps, newState) {
+        const convs = this.props.conversations;
+        const newConvs = newProps.conversations;
+        if ((newConvs && newConvs.conversations) && (!convs || !convs.conversations)) {
+
+            // list of messages
+            const conversation = this.getNextConversation(newProps);
+
+            // messages have a conversation_id, which is the one we save
+            this.updateSeen(conversation);
+        }
+    }
+
+    updateSeen (conversation) {
+        if (conversation && conversation.length) {
+            this.props.updateSeen(conversation[0].conversations_id);
+        }
     }
 
     onDonePress = () => {
@@ -37,15 +59,32 @@ class ChatScreen extends Component {
     }
 
     onIdleScreenNext = () => {
+        const nextIndex = this.state.currentConversationIndex + 1;
+
+        const conversation = this.props.conversations
+            .result[nextIndex];
+
+        this.updateSeen(conversation);
+
         this.setState({
             renderIdleScreen: false,
-            currentConversationIndex: this.state.currentConversationIndex + 1
+            currentConversationIndex: nextIndex
         });
     }
 
-    renderContent () {
+    getNextConversation (props) {
+        const currentConversationIndex = this.state.currentConversationIndex;
 
-        if (this.state.renderIdleScreen) {
+        return props.conversations
+            .result[currentConversationIndex];
+    }
+
+    renderContent () {
+        if (this.props.isFetching) {
+            return <Loader />;
+        }
+
+        else if (this.state.renderIdleScreen) {
             return (
                 <IdleScreen
                     triggerNextAfterTimeout={this.state.triggerNextAfterTimeout}
@@ -55,10 +94,7 @@ class ChatScreen extends Component {
 
         } else if (this.props.conversations && this.props.conversations.conversations) {
 
-            const currentConversationIndex = this.state.currentConversationIndex;
-            const currentConversation = this.props.conversations
-                .result[currentConversationIndex];
-
+            const currentConversation = this.getNextConversation(this.props);
             const nextExists = this.hasNextConversation();
 
             // render one screen
@@ -67,11 +103,10 @@ class ChatScreen extends Component {
                     conversation={currentConversation}
                     nextExists={nextExists}
                     onDonePress={this.onDonePress}
+                    onCustomAnswerSubmit={this.props.onCustomAnswerSubmit}
                 />
             );
 
-        } else if (this.props.isFetching) {
-            return <Loader />;
         } else {
             return <View />;
         }

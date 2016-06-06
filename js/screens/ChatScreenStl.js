@@ -49,10 +49,13 @@ const Stl = StyleSheet.create({
         backgroundColor: '#fff'
     },
     buttonStyle: {
-        marginVertical: 8,
         alignSelf: 'flex-start',
         marginVertical: 20,
         backgroundColor: '#5DA8FC'
+    },
+
+    defaultBtn: {
+        backgroundColor: '#ddd'
     },
 
     idleText: {
