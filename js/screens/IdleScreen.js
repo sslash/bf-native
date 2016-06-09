@@ -25,11 +25,11 @@ class IdleScreen extends Component {
 
     componentDidMount () {
         if (this.props.triggerNextAfterTimeout) {
-            this.triggerStartNextConversation();
+            this.setTimeoutBeforeGoToNextMessage();
         }
     }
 
-    triggerStartNextConversation = () => {
+    setTimeoutBeforeGoToNextMessage = () => {
         setTimeout(this.renderNextButton.bind(this), 10000);
     }
 

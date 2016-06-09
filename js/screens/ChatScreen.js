@@ -17,15 +17,12 @@ class ChatScreen extends Component {
         };
     }
 
-    hasNextConversation () {
-        return (this.state.currentConversationIndex <
-            this.props.conversations.conversations - 1) &&
-
-            // dont show more then 2 messages
-            this.state.currentConversationIndex < 1;
-    }
-
     componentWillReceiveProps(newProps, newState) {
+        if (newProps.isFetching && !this.props.isFetching) {
+            console.log(`SAP! noe more fetching. clear state` );
+            this.exitIdleScreen(0);
+        }
+
         const convs = this.props.conversations;
         const newConvs = newProps.conversations;
         if ((newConvs && newConvs.conversations) && (!convs || !convs.conversations)) {
@@ -44,6 +41,23 @@ class ChatScreen extends Component {
         }
     }
 
+    // happens when you are fetching routes again.
+    // typically when coming back from idle screen
+    exitIdleScreen (currentConversationIndex) {
+        this.setState({
+            currentConversationIndex,
+            renderIdleScreen: false
+        });
+    }
+
+    hasNextConversation () {
+        return (this.state.currentConversationIndex <
+            this.props.conversations.conversations - 1) &&
+
+            // dont show more then 2 messages
+            this.state.currentConversationIndex < 1;
+    }
+
     onDonePress = () => {
 
         this.setState({
@@ -58,6 +72,10 @@ class ChatScreen extends Component {
         });
     }
 
+    /**
+    * When idle screen times out,
+    * we'll go to the next available message
+    */
     onIdleScreenNext = () => {
         const nextIndex = this.state.currentConversationIndex + 1;
 
@@ -65,11 +83,7 @@ class ChatScreen extends Component {
             .result[nextIndex];
 
         this.updateSeen(conversation);
-
-        this.setState({
-            renderIdleScreen: false,
-            currentConversationIndex: nextIndex
-        });
+        this.exitIdleScreen(nextIndex);
     }
 
     getNextConversation (props) {
@@ -108,7 +122,12 @@ class ChatScreen extends Component {
             );
 
         } else {
-            return <View />;
+            return (
+                <IdleScreen
+                    triggerNextAfterTimeout={this.state.triggerNextAfterTimeout}
+                    onIdleScreenNext={this.onIdleScreenNext}
+                />
+            );
         }
     }
 

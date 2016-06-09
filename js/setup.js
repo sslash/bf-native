@@ -1,8 +1,9 @@
 'use strict';
-
-var BfApp = require('./BfApp');
 var React = require('React');
+var BfApp = require('./BfApp');
+var {View} = require('react-native');
 var {serverURL} = require('./env');
+var Notifications = require('./PushNotificationsController');
 
 function setup(): React.Component {
     // console.disableYellowBox = true;
@@ -17,6 +18,11 @@ function setup(): React.Component {
         render() {
 
             return <BfApp />
+            // return (
+            //     <View>
+            //         <Notifications />
+            //     </View>
+            // );
         }
     }
     return Root;

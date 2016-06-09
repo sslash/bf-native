@@ -37,7 +37,11 @@ class BfApp extends Component {
         this.state = {
             serverState: {},
             user: null,
-            isFetching: true
+            isFetching: false,
+
+            // // this is used when the app changes state
+            // // used to clear state in Chat Screen
+            // toggleClearState: false
         };
 
         (this: any).handleAppStateChange = this.handleAppStateChange.bind(this);
@@ -66,15 +70,21 @@ class BfApp extends Component {
     handleAppStateChange(appState) {
         if (appState === 'active') {
             // App went active! Do stuff
+            // this.clearState();
             this.fetchConversations();
         }
     }
 
+    // clearState () {
+    //     this.setState({toggleClearState: !this.state.toggleClearState});
+    // }
+
     fetchConversations () {
+        this.setState({isFetching: true});
 
         seen.getOrCreateUser()
         .then((userRes) => {
-            console.log('User fetched', userRes);
+            global.LOG('User fetched', userRes);
             this.setState({user: userRes});
 
             fetchConversations(userRes.lastSeenId)

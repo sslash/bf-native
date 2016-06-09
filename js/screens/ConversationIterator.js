@@ -14,4 +14,8 @@ export default class ConversationIterator {
     prev() {
         return this._conversation[this._current - 1];
     }
+
+    peek() {
+        return this._conversation[this._current];
+    }
 }

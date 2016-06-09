@@ -7,7 +7,7 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 
 
 const Message = ({message}) => (
-    <Animatable.View style={Stl.botMessage} animation="fadeIn" duration={300}>
+    <Animatable.View style={Stl.botMessage} animation="fadeInRight" duration={200}>
         <View style={{flex: 1}} />
         <View style={{flex: 2}}>
             <Text style={Stl.messageText}>{message.text}</Text>
@@ -24,11 +24,13 @@ const UserInput = ({onSubmit}) => (
 );
 
 const Button = ({onPress, text, style, textStyle}) => (
-    <TouchableOpacity
-        style={[Stl.botMessage, Stl.buttonStyle, style]}
-        onPress={onPress}>
-        <Text style={[{color: '#fff'}, textStyle]}>{text}</Text>
-    </TouchableOpacity>
+    <Animatable.View animation="fadeInLeft" duration={200}>
+        <TouchableOpacity
+            style={[Stl.botMessage, Stl.buttonStyle, style]}
+            onPress={onPress}>
+            <Text style={[{color: '#fff'}, textStyle]}>{text}</Text>
+        </TouchableOpacity>
+    </Animatable.View>
 );
 
 const defaultState = {
@@ -69,7 +71,7 @@ class ChatMessages extends Component {
     }
 
     continueChat = (msgLength) => {
-        this._timeout = setTimeout(this.emitMessage, msgLength * 50);
+        this._timeout = setTimeout(this.emitMessage, msgLength * 40);
     }
 
     emitMessage = () => {
@@ -83,8 +85,12 @@ class ChatMessages extends Component {
     }
 
     waitForAnswer(message) {
+
+        // user can submit input field
         if (message.user_input_answer ) {
             this.setState({renderUserInput: true});
+
+        // user can press button (called answer text)
         } else if (message.answer_text) {
             this.setState({
                 renderAnswerText: message.answer_text,
@@ -102,7 +108,13 @@ class ChatMessages extends Component {
             this.setState({
                 messages: [...this.state.messages, message]
             });
-            this.continueChat(message.text.length);
+
+            // length of the next message determines the wait time
+            const nextMessage = this.convIterator.peek();
+            const nextMsgLen = nextMessage && nextMessage.text ?
+                nextMessage.text.length : 1;
+
+            this.continueChat(nextMsgLen);
 
         // last message was seen. Let the user see the next one if exists
         } else {

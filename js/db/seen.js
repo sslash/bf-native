@@ -20,11 +20,12 @@ function getUser(userId) {
 function getOrCreateUser() {
     return new Promise((resolve, reject) => {
 
-        clean()
-        .then(() => {
-            // only one user-instance in the DB
-            return DB.user.find();
-        })
+        // clean()
+        // .then(() => {
+        //     return DB.user.find();
+        // })
+
+        DB.user.find()
         .then((user) => {
             if (user && user.length) {
                 return user;
@@ -60,9 +61,12 @@ function clean () {
 
 function updateUser(userId, data) {
 
+    // nice for testing, dont update seen
+    // return Promise.resolve();
+
     // just always overwrite this one. simple solution.
     data.seenIntro = true;
-    console.log('Updating user, ', userId, data);
+    global.LOG('Updating user, ', userId, data);
     return DB.user.update(data, {userId: userId});
 }
 
