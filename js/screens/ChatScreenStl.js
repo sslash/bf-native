@@ -1,4 +1,5 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
+const {width} = Dimensions.get('window');
 
 const textColor = '#626D82';
 
@@ -11,6 +12,16 @@ const Stl = StyleSheet.create({
 
     chatContainer: {
         justifyContent: 'flex-end'
+    },
+
+    image: {
+        width: 200,
+        height: 200,
+        flex: 1,
+        borderRadius: 4,
+        alignSelf: 'flex-end',
+        marginRight: 5,
+        marginVertical: 8
     },
 
     centerContainer: {

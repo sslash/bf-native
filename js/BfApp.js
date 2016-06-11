@@ -4,26 +4,11 @@ import React, {Component} from 'react';
 import {fetchConversations} from './data/actions';
 var AppState = require('AppState');
 import seen from './db/seen';
-// var AppState = require('AppState');
-// var LoginScreen = require('./login/LoginScreen');
 var PushNotificationsController = require('./PushNotificationsController');
 var StyleSheet = require('StyleSheet');
-// var F8Navigator = require('F8Navigator');
-// var CodePush = require('react-native-code-push');
 var {View, StatusBar} = require('react-native');
 import ChatScreen from './screens/ChatScreen';
 var initialMessage = require('./helpers/initialMessage');
-// var {
-//  loadConfig,
-//  loadMaps,
-//  loadNotifications,
-//  loadSessions,
-//  loadFriendsSchedules,
-//  loadSurveys,
-// } = require('./actions');
-// var { updateInstallation } = require('./actions/installation');
-// var { connect } = require('react-redux');
-
 var { version } = require('./env.js');
 
 function isFirstTimeUser (user) {
@@ -37,11 +22,7 @@ class BfApp extends Component {
         this.state = {
             serverState: {},
             user: null,
-            isFetching: false,
-
-            // // this is used when the app changes state
-            // // used to clear state in Chat Screen
-            // toggleClearState: false
+            isFetching: false
         };
 
         (this: any).handleAppStateChange = this.handleAppStateChange.bind(this);
@@ -50,17 +31,6 @@ class BfApp extends Component {
     componentDidMount () {
         this.fetchConversations();
         AppState.addEventListener('change', this.handleAppStateChange);
-        // AppState.addEventListener('change', this.handleAppStateChange);
-
-        // TODO: Make this list smaller, we basically download the whole internet
-        // this.props.dispatch(loadNotifications());
-        // this.props.dispatch(loadMaps());
-        // this.props.dispatch(loadConfig());
-        // this.props.dispatch(loadSessions());
-        // this.props.dispatch(loadFriendsSchedules());
-        // this.props.dispatch(loadSurveys());
-        // updateInstallation({version});
-        // CodePush.sync({installMode: CodePush.InstallMode.ON_NEXT_RESUME});
     }
 
     componentWillUnmount () {
@@ -69,15 +39,10 @@ class BfApp extends Component {
 
     handleAppStateChange(appState) {
         if (appState === 'active') {
-            // App went active! Do stuff
-            // this.clearState();
+            // App went active! See if there are more routes!
             this.fetchConversations();
         }
     }
-
-    // clearState () {
-    //     this.setState({toggleClearState: !this.state.toggleClearState});
-    // }
 
     fetchConversations () {
         this.setState({isFetching: true});
@@ -87,7 +52,8 @@ class BfApp extends Component {
             global.LOG('User fetched', userRes);
             this.setState({user: userRes});
 
-            fetchConversations(userRes.lastSeenId)
+            // fetchConversations(userRes.lastSeenId)
+            fetchConversations(0)            
             .then(conversations => {
 
                 // if its the first time we see the app,

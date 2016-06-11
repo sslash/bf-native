@@ -1,19 +1,53 @@
 import React, {Component} from 'react';
-import {View, Text, TextInput, TouchableOpacity} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Image} from 'react-native';
 import Stl from './ChatScreenStl';
 import ConversationIterator from './ConversationIterator';
 import * as Animatable from 'react-native-animatable';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 
+const MessageImage = ({image}) => (
+    <Animatable.Image 
+        style={Stl.botMessage} 
+        animation="fadeInRight" 
+        duration={400} 
+        source={{uri: image}} 
+        style={Stl.image} 
+        resizeMode="cover"
+    />
+);
 
-const Message = ({message}) => (
-    <Animatable.View style={Stl.botMessage} animation="fadeInRight" duration={200}>
-        <View style={{flex: 1}} />
-        <View style={{flex: 2}}>
-            <Text style={Stl.messageText}>{message.text}</Text>
-        </View>
+const MessageText = ({text}) => (
+    <Animatable.View style={Stl.botMessage} animation="fadeInRight" duration={200}>        
+        <Text style={Stl.messageText}>{text}</Text>
     </Animatable.View>
 );
+
+const MessageWrapper = ({children}) => (
+    <View>
+        <View style={{flex: 1}} />
+        <View style={{flex: 2}}>
+            {children}
+        </View>   
+    </View>
+);
+
+const Message = ({message}) => {
+    
+    if (message.image) {
+        return (
+            <MessageWrapper>
+                <MessageText text={message.text} />            
+                <MessageImage image={message.image} />           
+            </MessageWrapper>
+        );
+    } else {
+        return (
+            <MessageWrapper>
+                <MessageText text={message.text} />
+            </MessageWrapper>
+        );
+    }
+};
 
 const UserInput = ({onSubmit}) => (
         <TextInput
@@ -70,8 +104,16 @@ class ChatMessages extends Component {
         }
     }
 
+    componentWillUnmount () {
+        if (this._timeout) {
+            clearTimeout(this._timeout);
+        }
+    }
+
     continueChat = (msgLength) => {
-        this._timeout = setTimeout(this.emitMessage, msgLength * 40);
+        // some randomness to that wait time is niz.
+        const timeout = Math.floor(Math.random() * 80) + 40;
+        this._timeout = setTimeout(this.emitMessage, msgLength * timeout);
     }
 
     emitMessage = () => {
@@ -163,7 +205,7 @@ class ChatMessages extends Component {
     //
 
     renderMessages () {
-        return this.state.messages.map(msg => <Message message={msg} />);
+        return this.state.messages.map((msg, i) => <Message message={msg} key={`msg.${i}`} />);
     }
 
     renderUserInput () {

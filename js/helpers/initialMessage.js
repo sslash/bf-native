@@ -7,6 +7,7 @@ const initialMessage = [
     {
         id: 0,
         text: 'Hi',
+        image: 'https://media.giphy.com/media/BVStb13YiR5Qs/giphy.gif'
     },
     {
         text: 'Welcome to boyfriendr.',
